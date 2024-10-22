@@ -1,0 +1,113 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.weather-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.navbar {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.weather-header {
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  display: contents;
+}
+
+.weather-row {
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.weather-row:nth-child(even) {
+  background-color: #f1f1f1;
+}
+
+.weather-row div {
+  padding: 5px;
+}
+/* Styles for each question box */
+#question1,
+#question2,
+#question3,
+#question4,
+#question5,
+#question6,
+#question7,
+#question8 {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #decccc;
+  border: 1px solid #ccc;
+  transition: background-color 0.3s ease;
+  color:#333;
+}
+
+/* Hover effect for questions */
+#question1:hover,
+#question2:hover,
+#question3:hover,
+#question4:hover,
+#question5:hover,
+#question6:hover,
+#question7:hover,
+#question8:hover {
+  background-color: #e0e0e0;
+}
+
+/* Styles for each answer */
+#answer1,
+#answer2,
+#answer3,
+#answer4,
+#answer5,
+#answer6,
+#answer7,
+#answer8 {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background-color: #b4afaf;
+  color:#333;
+  border: 1px solid #ccc;
+
+}
+
+/* Expanded style for each answer */
+#answer1.expanded,
+#answer2.expanded,
+#answer3.expanded,
+#answer4.expanded,
+#answer5.expanded,
+#answer6.expanded,
+#answer7.expanded,
+#answer8.expanded {
+  max-height: 100px; /* Adjust based on content */
+}
+.statistics-section>h1{
+  color:#ddd;
+
+}
