@@ -3,10 +3,14 @@ import './App.css'; // Updated CSS file
 
 export default function App() {
   const [weatherData, setWeatherData] = useState(null);
+  const [originalWeatherData, setOriginalWeatherData] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [checkState, setCheckState] = useState(0); // State variable for weather or statistics
   const [statistics, setStatistics] = useState({}); // State for statistics
+  const [searchTerm, setSearchTerm] = useState(''); // State for search query
+
 
   useEffect(() => {
     const fetchWeatherData = async () => {
@@ -16,6 +20,7 @@ export default function App() {
         );
         const data = await response.json();
         setWeatherData(data);
+        setOriginalWeatherData(data);
 
         // Calculate statistics after fetching data
         const averages = calculateAverageWeatherDescriptions(data.data);
@@ -45,6 +50,42 @@ export default function App() {
 
     fetchWeatherData();
   }, []);
+
+const handleSearchChange = (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    setSearchTerm(searchTerm);
+  
+    // Only filter if there's something to search for
+    if (!searchTerm) {
+      setWeatherData(originalWeatherData);
+      return;
+    }
+  
+    const filteredData = originalWeatherData.data.filter((entry) => {
+      // Get the forecast time and day
+      
+      const forecastTime = new Date(entry.timestamp_local).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+      }).toLowerCase().replace(/\s+/g, ' ').trim();;
+  
+      const forecastDay = new Date(entry.timestamp_local).toLocaleDateString('en-US', {
+        weekday: 'long',
+      }).toLowerCase();
+  
+      // Check if search term matches either time or day
+      const matchesTime = forecastTime.includes(searchTerm);
+      const matchesDay = forecastDay.includes(searchTerm);
+  
+      // Filter if either matches
+      return matchesTime || matchesDay;
+    });
+  
+    // Update the weather data with filtered results
+    setWeatherData((prevData) => ({ ...prevData, data: filteredData }));
+  };
+  
   const handleQuestionClick = (event) => {
     const answerElement = event.target.nextElementSibling; // Get the next sibling (the corresponding answer)
     
@@ -52,34 +93,7 @@ export default function App() {
       answerElement.classList.toggle('expanded'); // Toggle the expanded class
     }
   };
-  const convertTimestampsToDayTimeDict = (data) => {
-    const dayTimeDict = {};
   
-    data.forEach((forecast) => {
-      const date = new Date(forecast.timestamp_local);
-  
-      // Get day (e.g., 'Mon', 'Tue', etc.)
-      const day = date.toLocaleDateString('en-US', { weekday: 'short' });
-  
-      // Get time (e.g., '10 AM', '3 PM', etc.)
-      const time = date.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true, // For 12-hour format
-      });
-  
-      // Initialize the array for the day if it doesn't exist
-      if (!dayTimeDict[day]) {
-        dayTimeDict[day] = [];
-      }
-  
-      // Add the time to the array for that day
-      dayTimeDict[day].push(time);
-    });
-  
-    return dayTimeDict;
-  };
-
   const countWeatherDescriptions = (data) => {
     const counts = {
       "few clouds": 0,
@@ -181,6 +195,7 @@ export default function App() {
   const stateIs = (value) => {
     if (checkState === 0) {
       value = checkState;
+      
     } else if (checkState === 1) {
       value = checkState;
     }
@@ -207,25 +222,25 @@ export default function App() {
 
     switch (filterType) {
       case 'highestWind':
-        filteredData = weatherData.data.filter((entry) => entry.wind_spd > statistics.averageWindSpeed);
+        filteredData = originalWeatherData.data.filter((entry) => entry.wind_spd > statistics.averageWindSpeed);
         break;
       case 'lowestWind':
-        filteredData = weatherData.data.filter((entry) => entry.wind_spd < statistics.averageWindSpeed);
+        filteredData = originalWeatherData.data.filter((entry) => entry.wind_spd < statistics.averageWindSpeed);
         break;
       case 'highestTemp':
-        filteredData = weatherData.data.filter((entry) => entry.temp > statistics.averageTemperature);
+        filteredData = originalWeatherData.data.filter((entry) => entry.temp > statistics.averageTemperature);
         break;
       case 'lowestTemp':
-        filteredData = weatherData.data.filter((entry) => entry.temp < statistics.averageTemperature);
+        filteredData = originalWeatherData.data.filter((entry) => entry.temp < statistics.averageTemperature);
         break;
       default:
-        filteredData = weatherData.data; // Default to showing all data
+        filteredData = originalWeatherData.data; // Default to showing all data
     }
 
     // Update state with filtered data
     setWeatherData((prevData) => ({ ...prevData, data: filteredData }));
   };
-
+ 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
@@ -236,16 +251,28 @@ export default function App() {
         <h1>{weatherData.city_name}</h1>
         {/* Buttons for Weather and Statistics */}
         <div className="button-container">
-          <button onClick={() => setCheckState(0)}>Weather</button>
+          <button onClick={() => {setCheckState(0); setWeatherData(originalWeatherData);}}>Weather/reset</button>
           <button onClick={() => setCheckState(1)}>Statistics</button>
         </div>
         <h1>Filter</h1>
 <div className="filter-buttons">
-  <button onClick={() => filterData('highestWind')}>Highest Wind</button>
-  <button onClick={() => filterData('lowestWind')}>Lowest Wind</button>
-  <button onClick={() => filterData('highestTemp')}>Highest Temp</button>
-  <button onClick={() => filterData('lowestTemp')}>Lowest Temp</button>
+<button onClick={() => filterData('highestWind')}>Highest Winds</button>
+  <button onClick={() => filterData('lowestWind')}>Lowest Winds</button>
+  <button onClick={() => filterData('highestTemp')}>Highest Temps</button>
+  <button onClick={() => filterData('lowestTemp')}>Lowest Temps</button>
 </div>
+{/* Search Bar */}
+<h1>Search</h1>
+        <form >
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Search weather description..."
+            className="search-bar"
+          />
+        
+        </form>
       </nav>
 
       {/* Conditional Rendering for Weather Section */}
