@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css'; // Updated CSS file
-
+import { Link } from 'react-router-dom';
+import WeatherChart from './components/WeatherChart';
 export default function App() {
   const [weatherData, setWeatherData] = useState(null);
   const [originalWeatherData, setOriginalWeatherData] = useState(null);
@@ -286,11 +287,14 @@ const handleSearchChange = (event) => {
           </div>
 
           {weatherData.data.map((hourlyForecast, index) => (
+           
             <div className="weather-row" key={index}>
-              <div>{new Date(hourlyForecast.timestamp_local).toLocaleString('en-US', { weekday: 'short', hour: 'numeric' })}</div>
-              <div>{hourlyForecast.temp}°F {renderTemperatureIcon(hourlyForecast.temp)}</div>
-              <div>{hourlyForecast.weather.description} {renderConditionIcon(hourlyForecast.weather.description)}</div>
-              <div>{hourlyForecast.wind_spd.toFixed(1)} mph</div>
+              <Link to={`/hour/${index}`}>
+            <div>{new Date(hourlyForecast.timestamp_local).toLocaleString('en-US', { weekday: 'short', hour: 'numeric' })}</div>
+            <div>{hourlyForecast.temp}°F</div>
+            <div>{hourlyForecast.weather.description}</div>
+            <div>{hourlyForecast.wind_spd.toFixed(1)} mph</div>
+          </Link>
             </div>
           ))}
         </div>
@@ -358,7 +362,12 @@ const handleSearchChange = (event) => {
        </p>
      </div>
       )};
+       <div> 
+       <WeatherChart data={weatherData} />
+        </div>
       </div>
+     
+       
   );
   
 }
